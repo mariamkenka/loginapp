@@ -1,0 +1,31 @@
+version: '3.1'
+services: 
+  postgre:
+    image: postgres:15
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  login_app:
+    build:  .
+    ports:
+      - 5000:5000
+    environment:  
+      - DATABASE_URL=postgresql://postgres:mysecretpassword@postgre:5432/postgres 
+    depends_on:
+      postgre:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+
+   
+
